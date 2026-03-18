@@ -1,0 +1,158 @@
+@startuml
+
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+title Diagramme de classes Laboratoire 5
+
+'PATRON OBSERVER'
+package "Patron Observer" <<Rectangle>> {
+    interface Observateur {
+        + miseAJour() : void
+    }
+
+    abstract class SujetObservable {
+        - observateurs : List<Observateur>
+        + ajouterObservateur(obs : Observateur) : void
+        + retirerObservateur(obs : Observateur) : void
+        + notifierObservateurs() : void
+    }
+
+    SujetObservable o--> "*" Observateur : notifie
+}
+
+'MODÈLE'
+package "Modèle" <<Rectangle>> {
+    class ImageModele extends SujetObservable {
+        - cheminImage : String
+        - image : Image
+        + chargerImage(chemin : String) : void
+        + getImage() : Image
+        + getCheminImage() : String
+        + estChargee() : boolean
+    }
+
+    class Perspective extends SujetObservable {
+        - translateX : double
+        - translateY : double
+        - zoom : double
+        + getTranslateX() : double
+        + getTranslateY() : double
+        + getZoom() : double
+        + setTranslation(x : double, y : double) : void
+        + setZoom(zoom : double) : void
+        + copier() : Perspective
+        + restaurer(autre : Perspective) : void
+    }
+}
+
+'PATRON COMMAND'
+package "Patron Command" <<Rectangle>> {
+    interface Commande {
+        + executer() : void
+        + annuler() : void
+    }
+
+    class CommandeTranslation implements Commande {
+        - perspective : Perspective
+        - nouveauX : double
+        - nouveauY : double
+        - ancienX : double
+        - ancienY : double
+        + executer() : void
+        + annuler() : void
+    }
+
+    class CommandeZoom implements Commande {
+        - perspective : Perspective
+        - nouveauZoom : double
+        - ancienZoom : double
+        + executer() : void
+        + annuler() : void
+    }
+}
+
+'PATRON SINGLETON'
+package "Patron Singleton" <<Rectangle>> {
+    class GestionnaireCommande {
+        - {static} instance : GestionnaireCommande
+        - pileCommandes : Stack<Commande>
+        - GestionnaireCommande()
+        + {static} getInstance() : GestionnaireCommande
+        + executerCommande(cmd : Commande) : void
+        + annuler() : void
+        + peutAnnuler() : boolean
+    }
+}
+
+'VUES'
+package "Vues" <<Rectangle>> {
+    class VueVignette implements Observateur {
+        - canvas : Canvas
+        - imageModele : ImageModele
+        + miseAJour() : void
+        - dessiner() : void
+    }
+
+    class VuePerspective implements Observateur {
+        - canvas : Canvas
+        - imageModele : ImageModele
+        - perspective : Perspective
+        + miseAJour() : void
+        - dessiner() : void
+        - configurerSouris() : void
+        + getPerspective() : Perspective
+    }
+}
+
+'SÉRIALISATION'
+package "Sérialisation" <<Rectangle>> {
+    class DonneesSauvegarde {
+        - cheminImage : String
+        - perspective1 : Perspective
+        - perspective2 : Perspective
+    }
+
+    class GestionnaireSauvegarde {
+        + {static} sauvegarder(donnees, fichier) : void
+        + {static} charger(fichier) : DonneesSauvegarde
+    }
+}
+
+
+'CONTROLEUR'
+package "Controleur" <<Rectangle>> {
+    class ApplicationPrincipale {
+        - imageModele : ImageModele
+        - perspective1 : Perspective
+        - perspective2 : Perspective
+        + start(stage : Stage) : void
+        - creerBarreMenus(stage) : MenuBar
+        - chargerImage(stage) : void
+        - sauvegarder(stage) : void
+        - chargerPerspective(stage) : void
+    }
+}
+
+'RELATIONS'
+CommandeTranslation --> Perspective : modifie
+CommandeZoom --> Perspective : modifie
+GestionnaireCommande --> "*" Commande : gère
+
+VueVignette --> ImageModele : observe
+VuePerspective --> ImageModele : observe
+VuePerspective --> Perspective : observe
+VuePerspective ..> GestionnaireCommande : utilise
+VuePerspective ..> CommandeTranslation : crée
+VuePerspective ..> CommandeZoom : crée
+
+ApplicationPrincipale --> ImageModele
+ApplicationPrincipale --> Perspective
+ApplicationPrincipale --> VueVignette
+ApplicationPrincipale --> VuePerspective
+ApplicationPrincipale ..> GestionnaireCommande : utilise
+
+GestionnaireSauvegarde ..> DonneesSauvegarde
+ApplicationPrincipale ..> GestionnaireSauvegarde : utilise
+
+@enduml
