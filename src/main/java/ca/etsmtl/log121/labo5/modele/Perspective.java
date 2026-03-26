@@ -7,4 +7,55 @@ import java.io.Serializable;
 public class Perspective extends SujetObservable implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    private double translateX = 0;
+    private double translateY = 0;
+    private double zoom = 1.0;
+
+    public Perspective() {
+    }
+
+    public Perspective(double translateX, double translateY, double zoom) {
+        this.translateX = translateX;
+        this.translateY = translateY;
+        this.zoom = zoom;
+    }
+
+    public double getTranslateX() {
+        return translateX;
+    }
+
+    public double getTranslateY() {
+        return translateY;
+    }
+
+    public double getZoom() {
+        return zoom;
+    }
+
+    //Modifie la translation et notifie les observateurs
+    public void setTranslation(double x, double y) {
+        this.translateX = x;
+        this.translateY = y;
+        notifierObservateurs();
+    }
+
+    //Modifie le zoom et notifie les observateurs
+    public void setZoom(double zoom) {
+        this.zoom = zoom;
+        notifierObservateurs();
+    }
+
+    //Crée une copie de cette perspective
+    public Perspective copier() {
+        return new Perspective(translateX, translateY, zoom);
+    }
+
+    //Restaure l'état à partir d'une autre perspective et notifie les observateurs
+    public void restaurer(Perspective autre) {
+        this.translateX = autre.translateX;
+        this.translateY = autre.translateY;
+        this.zoom = autre.zoom;
+        notifierObservateurs();
+    }
 }
