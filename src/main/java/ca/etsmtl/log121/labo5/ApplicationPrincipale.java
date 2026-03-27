@@ -22,6 +22,12 @@ public class ApplicationPrincipale extends Application {
     private VuePerspective vue1;
     private VuePerspective vue2;
 
+    /**
+     * Méthode appelée au démarrage de l'application JavaFX.
+     * Initialise l'interface graphique, les menus et les vues.
+     *
+     * @param stage la fenêtre principale
+     */
     @Override
     public void start(Stage stage) {
 
@@ -75,6 +81,10 @@ public class ApplicationPrincipale extends Application {
         quitter.setOnAction(e -> stage.close());
     }
 
+    /**
+     * Ouvre une boîte de dialogue permettant de sélectionner une image,
+     * puis la charge dans le modèle.
+     */
     private void ouvrirImage() {
         FileChooser chooser = new FileChooser();
         chooser.getExtensionFilters().addAll(
@@ -87,10 +97,19 @@ public class ApplicationPrincipale extends Application {
         }
     }
 
+    /**
+     * Méthode utilitaire.
+     * @return un conteneur vide
+     */
     private Pane createPane() {
         return null;
     }
 
+
+    /**
+     * Point d'entrée de l'application.
+     * @param args arguments de la ligne de commande
+     */
     public static void main(String[] args) {
         launch(args);
     }

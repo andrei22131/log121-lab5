@@ -15,6 +15,12 @@ public class VuePerspective extends BorderPane implements Observateur {
     private final Perspective perspective;
     private final ImageView imageView;
 
+    /**
+     * Constructeur de la vue perspective.
+     *
+     * @param imageModele le modèle contenant l'image
+     * @param perspective la perspective associée
+     */
     public VuePerspective(ImageModele imageModele, Perspective perspective) {
         this.imageModele = imageModele;
         this.perspective = perspective;
@@ -34,6 +40,10 @@ public class VuePerspective extends BorderPane implements Observateur {
         setPadding(new Insets(5));
     }
 
+    /**
+     * Méthode appelée lors d'une mise à jour du modèle.
+     * Met à jour l'image affichée dans la vue.
+     */
     @Override
     public void miseAJour() {
         Image img = imageModele.getImage();

@@ -16,6 +16,11 @@ public class VueVignette extends BorderPane implements Observateur {
     private final ImageView imageView;
     private final ScrollPane scrollPane;
 
+    /**
+     * Constructeur de la vue vignette.
+     *
+     * @param imageModele le modèle contenant l'image
+     */
     public VueVignette(ImageModele imageModele) {
         this.imageModele = imageModele;
         this.imageModele.ajouterObservateur(this);
@@ -34,6 +39,10 @@ public class VueVignette extends BorderPane implements Observateur {
         setPadding(new Insets(5));
     }
 
+    /**
+     * Méthode appelée lors d'une mise à jour du modèle.
+     * Met à jour l'image affichée dans la vignette.
+     */
     @Override
     public void miseAJour() {
         Image img = imageModele.getImage();
