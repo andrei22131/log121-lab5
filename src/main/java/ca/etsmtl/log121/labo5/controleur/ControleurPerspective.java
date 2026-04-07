@@ -1,4 +1,4 @@
-package ca.etsmtl.log121.labo5.commande;
+package ca.etsmtl.log121.labo5.controleur;
 
 import ca.etsmtl.log121.labo5.modele.Perspective;
 import javafx.scene.image.ImageView;

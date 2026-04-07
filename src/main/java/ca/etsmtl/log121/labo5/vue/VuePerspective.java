@@ -1,9 +1,9 @@
 package ca.etsmtl.log121.labo5.vue;
 
+import ca.etsmtl.log121.labo5.controleur.ControleurPerspective;
 import ca.etsmtl.log121.labo5.modele.ImageModele;
 import ca.etsmtl.log121.labo5.modele.Observateur;
 import ca.etsmtl.log121.labo5.modele.Perspective;
-import ca.etsmtl.log121.labo5.commande.ControleurPerspective;
 import javafx.geometry.Insets;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
@@ -55,6 +55,7 @@ public class VuePerspective extends BorderPane implements Observateur {
         imageView.setScaleX(perspective.getZoom());
         imageView.setScaleY(perspective.getZoom());
 
+        //...
         imageView.setTranslateX(perspective.getTranslateX());
         imageView.setTranslateY(perspective.getTranslateY());
     }
