@@ -3,6 +3,7 @@ package ca.etsmtl.log121.labo5.vue;
 import ca.etsmtl.log121.labo5.modele.ImageModele;
 import ca.etsmtl.log121.labo5.modele.Observateur;
 import ca.etsmtl.log121.labo5.modele.Perspective;
+import ca.etsmtl.log121.labo5.commande.ControleurPerspective;
 import javafx.geometry.Insets;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
@@ -14,6 +15,7 @@ public class VuePerspective extends BorderPane implements Observateur {
     private final ImageModele imageModele;
     private final Perspective perspective;
     private final ImageView imageView;
+    private final ControleurPerspective controleur;
 
     /**
      * Constructeur de la vue perspective.
@@ -38,6 +40,7 @@ public class VuePerspective extends BorderPane implements Observateur {
 
         setCenter(scrollPane);
         setPadding(new Insets(5));
+        controleur = new ControleurPerspective(perspective, imageView);
     }
 
     /**
@@ -48,5 +51,11 @@ public class VuePerspective extends BorderPane implements Observateur {
     public void miseAJour() {
         Image img = imageModele.getImage();
         imageView.setImage(img);
+
+        imageView.setScaleX(perspective.getZoom());
+        imageView.setScaleY(perspective.getZoom());
+
+        imageView.setTranslateX(perspective.getTranslateX());
+        imageView.setTranslateY(perspective.getTranslateY());
     }
 }

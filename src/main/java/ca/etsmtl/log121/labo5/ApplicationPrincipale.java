@@ -4,6 +4,7 @@ import ca.etsmtl.log121.labo5.modele.ImageModele;
 import ca.etsmtl.log121.labo5.modele.Perspective;
 import ca.etsmtl.log121.labo5.vue.VuePerspective;
 import ca.etsmtl.log121.labo5.vue.VueVignette;
+import ca.etsmtl.log121.labo5.commande.GestionnaireCommande;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -11,6 +12,7 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
 import java.io.File;
+import ca.etsmtl.log121.labo5.serialisation.*;
 
 public class ApplicationPrincipale extends Application {
 
@@ -70,13 +72,17 @@ public class ApplicationPrincipale extends Application {
 
         menuBar.getMenus().addAll(menuFichier, menuEdition, menuPressePapier);
         root.setTop(menuBar);
-
+     
         Scene scene = new Scene(root, 1200, 700);
         stage.setTitle("Laboratoire 5");
         stage.setScene(scene);
         stage.show();
 
         chargerImage.setOnAction(e -> ouvrirImage());
+
+        undo.setOnAction( e -> {
+            GestionnaireCommande.getInstance().annulerDerniereCommande();
+        });
 
         quitter.setOnAction(e -> stage.close());
     }
