@@ -1,10 +1,10 @@
 package ca.etsmtl.log121.labo5;
 
+import ca.etsmtl.log121.labo5.controleur.GestionnaireCommande;
 import ca.etsmtl.log121.labo5.modele.ImageModele;
 import ca.etsmtl.log121.labo5.modele.Perspective;
 import ca.etsmtl.log121.labo5.vue.VuePerspective;
 import ca.etsmtl.log121.labo5.vue.VueVignette;
-import ca.etsmtl.log121.labo5.commande.GestionnaireCommande;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
