@@ -2,50 +2,59 @@ package ca.etsmtl.log121.labo5.vue;
 
 import ca.etsmtl.log121.labo5.modele.ImageModele;
 import ca.etsmtl.log121.labo5.modele.Observateur;
-import javafx.geometry.Insets;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 
-public class VueVignette extends BorderPane implements Observateur {
+//Affiche une version réduite de l'image, sans zoom ni translation
+public class VueVignette extends Pane implements Observateur {
 
-    private static final double MAX_SIZE = 150.0;
-
+    private final Canvas canvas;
     private final ImageModele imageModele;
-    private final ImageView imageView;
-    private final ScrollPane scrollPane;
 
-    /**
-     * Constructeur de la vue vignette.
-     *
-     * @param imageModele le modèle contenant l'image
-     */
     public VueVignette(ImageModele imageModele) {
         this.imageModele = imageModele;
-        this.imageModele.ajouterObservateur(this);
 
-        imageView = new ImageView();
-        imageView.setPreserveRatio(true);
-        imageView.setFitWidth(MAX_SIZE);
-        imageView.setFitHeight(MAX_SIZE);
+        canvas = new Canvas();
+        getChildren().add(canvas);
 
-        scrollPane = new ScrollPane(imageView);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(true);
-        scrollPane.setPrefSize(MAX_SIZE, MAX_SIZE);
+        canvas.widthProperty().bind(widthProperty());
+        canvas.heightProperty().bind(heightProperty());
 
-        setCenter(scrollPane);
-        setPadding(new Insets(5));
+        widthProperty().addListener((obs, o, n) -> dessiner());
+        heightProperty().addListener((obs, o, n) -> dessiner());
+
+        imageModele.ajouterObservateur(this);
+
+        setStyle("-fx-border-color: black; -fx-border-width: 1;");
     }
 
-    /**
-     * Méthode appelée lors d'une mise à jour du modèle.
-     * Met à jour l'image affichée dans la vignette.
-     */
     @Override
     public void miseAJour() {
+        dessiner();
+    }
+
+    private void dessiner() {
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        double w = canvas.getWidth();
+        double h = canvas.getHeight();
+
+        gc.clearRect(0, 0, w, h);
+
         Image img = imageModele.getImage();
-        imageView.setImage(img);
+        if (img == null) return;
+
+        //zalculer le ratio pour que l'image tienne dans la vignette
+        double ratioX = w / img.getWidth();
+        double ratioY = h / img.getHeight();
+        double ratio = Math.min(ratioX, ratioY);
+
+        double imgW = img.getWidth() * ratio;
+        double imgH = img.getHeight() * ratio;
+        double offsetX = (w - imgW) / 2;
+        double offsetY = (h - imgH) / 2;
+
+        gc.drawImage(img, offsetX, offsetY, imgW, imgH);
     }
 }

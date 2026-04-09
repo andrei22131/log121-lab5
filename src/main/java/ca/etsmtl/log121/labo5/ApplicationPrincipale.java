@@ -37,13 +37,16 @@ public class ApplicationPrincipale extends Application {
         vue1 = new VuePerspective(imageModele, perspective1);
         vue2 = new VuePerspective(imageModele, perspective2);
 
-        SplitPane splitPane = new SplitPane();
-        splitPane.getItems().addAll(vueVignette, vue1, vue2);
-        splitPane.setDividerPositions(0.25, 0.65);
+        //panneau central avec 2 perspectives côte à côte
+        HBox panneauPerspectives = new HBox();
+        HBox.setHgrow(vue1, Priority.ALWAYS);
+        HBox.setHgrow(vue2, Priority.ALWAYS);
+        panneauPerspectives.getChildren().addAll(vue1, vue2);
 
-        SplitPane.setResizableWithParent(vueVignette, true);
-        SplitPane.setResizableWithParent(vue1, true);
-        SplitPane.setResizableWithParent(vue2, true);
+        SplitPane splitPane = new SplitPane();
+        splitPane.getItems().addAll(vueVignette, panneauPerspectives);
+        splitPane.setDividerPositions(0.2);
+        SplitPane.setResizableWithParent(vueVignette, false);
 
         BorderPane root = new BorderPane();
         root.setCenter(splitPane);
@@ -72,9 +75,16 @@ public class ApplicationPrincipale extends Application {
 
         menuBar.getMenus().addAll(menuFichier, menuEdition, menuPressePapier);
         root.setTop(menuBar);
+
+        //barre de statut
+        Label statut = new Label("Démonstration LOG121 © 2010");
+        statut.setStyle("-fx-padding: 5; -fx-font-size: 12;");
+        HBox barreStatut = new HBox(statut);
+        barreStatut.setStyle("-fx-alignment: center; -fx-background-color: #f0f0f0;");
+        root.setBottom(barreStatut);
      
-        Scene scene = new Scene(root, 1200, 700);
-        stage.setTitle("Laboratoire 5");
+        Scene scene = new Scene(root, 1024, 600);
+        stage.setTitle("Laboratoire MVC- Image et perspectives");
         stage.setScene(scene);
         stage.show();
 
