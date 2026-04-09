@@ -8,12 +8,16 @@ public class ControleurPerspective {
     private final Perspective perspective;
     private final ImageView imageView;
 
-    private Perspective etatInitialZoom;
-    private boolean zoomEnCours = false;
+    // Translation qui est létat au début du drag
+    private double debutDragX;
+    private double debutDragY;
+    private double debutTransX;
+    private double debutTransY;
+    private boolean enDrag = false;
 
-    private double lastX;
-    private double lastY;
-    private Perspective etatInitialDrag; //drag : translation
+    // Zoom qui est l'état avant le premier scroll
+    private double ancienZoom;
+    private boolean zoomModifie = false;
 
     public ControleurPerspective(Perspective perspective, ImageView imageView) {
         this.perspective = perspective;
@@ -24,54 +28,51 @@ public class ControleurPerspective {
 
     private void initialiser() {
 
-        //etats initiaux pour zoom et translation
+        // Début du drag qui mémorise la position de départ
         imageView.setOnMousePressed(e -> {
-            //debut (potentiel) zoom
-            etatInitialZoom = perspective.copier();
-            zoomEnCours = true;
-
-            //debut translation
-            lastX = e.getSceneX();
-            lastY = e.getSceneY();
-            etatInitialDrag = perspective.copier();
+            debutDragX = e.getSceneX();
+            debutDragY = e.getSceneY();
+            debutTransX = perspective.getTranslateX();
+            debutTransY = perspective.getTranslateY();
+            enDrag = false;
         });
 
-        imageView.setOnScroll(event -> {
-            //appliquer zoom de maniere continue
-            double facteur = event.getDeltaY() > 0 ? 1.2 : 0.8;
-            double nouveauZoom = perspective.getZoom() * facteur;
-
-            perspective.setZoom(nouveauZoom);
-        });
-
-        //translation
+        // Translation pendant le drag
         imageView.setOnMouseDragged(e -> {
-            double dx = e.getSceneX() - lastX; //dx : deplacement en x
-            double dy = e.getSceneY() - lastY; //dy : deplacement en y
-
-            perspective.setTranslation(
-                etatInitialDrag.getTranslateX() + dx, 
-                etatInitialDrag.getTranslateY() + dy  
-            );
+            enDrag = true;
+            double dx = e.getSceneX() - debutDragX;
+            double dy = e.getSceneY() - debutDragY;
+            perspective.setTranslation(debutTransX + dx, debutTransY + dy);
         });
 
-        //fin des actions : creation des commandes
+        // Fin du drag qui crée la commande pour le undo
         imageView.setOnMouseReleased(e -> {
+            if (enDrag) {
+                double nouveauX = perspective.getTranslateX();
+                double nouveauY = perspective.getTranslateY();
 
-            //zoom
-            if (zoomEnCours) {
-                Perspective apresZoom = perspective.copier();
-                CommandePerspective cmdZoom =
-                    new CommandePerspective(perspective, etatInitialZoom, apresZoom);
-                GestionnaireCommande.getInstance().executerCommande(cmdZoom);
-                zoomEnCours = false;
+                // Seulement si la position a vraiment changé
+                if (nouveauX != debutTransX || nouveauY != debutTransY) {
+                    Perspective avant = new Perspective(debutTransX, debutTransY, perspective.getZoom());
+                    Perspective apres = new Perspective(nouveauX, nouveauY, perspective.getZoom());
+                    CommandePerspective cmd = new CommandePerspective(perspective, avant, apres);
+                    GestionnaireCommande.getInstance().ajouterCommande(cmd);
+                }
+                enDrag = false;
             }
-            
-            //translation
-            Perspective apresDrag = perspective.copier();
-            CommandePerspective cmdDrag =
-                new CommandePerspective(perspective, etatInitialDrag, apresDrag);
-            GestionnaireCommande.getInstance().executerCommande(cmdDrag);
+        });
+
+        // Zoom par molette pour chaque scroll qui crée une commande individuelle
+        imageView.setOnScroll(event -> {
+            double facteur = event.getDeltaY() > 0 ? 1.2 : 0.8;
+            double ancienZoomVal = perspective.getZoom();
+            double nouveauZoom = ancienZoomVal * facteur;
+
+            Perspective avant = new Perspective(perspective.getTranslateX(), perspective.getTranslateY(), ancienZoomVal);
+            Perspective apres = new Perspective(perspective.getTranslateX(), perspective.getTranslateY(), nouveauZoom);
+
+            CommandePerspective cmd = new CommandePerspective(perspective, avant, apres);
+            GestionnaireCommande.getInstance().executerCommande(cmd);
         });
     }
 }
