@@ -58,4 +58,15 @@ public class Perspective extends SujetObservable implements Serializable {
         this.zoom = autre.zoom;
         notifierObservateurs();
     }
+
+    public void restaurerEtat(PerspectiveMemento memento) {
+        this.zoom = memento.getZoom();
+        this.translateX = memento.getTranslationX();
+        this.translateY = memento.getTranslationY();
+        notifierObservateurs();
+    }
+
+    public PerspectiveMemento sauvegarderEtat() {
+        return new PerspectiveMemento(this.zoom, this.translateX, this.translateY);
+    }
 }

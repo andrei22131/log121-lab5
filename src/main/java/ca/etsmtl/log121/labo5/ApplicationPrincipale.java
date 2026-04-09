@@ -8,6 +8,9 @@ import ca.etsmtl.log121.labo5.vue.VueVignette;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
@@ -77,7 +80,7 @@ public class ApplicationPrincipale extends Application {
         root.setTop(menuBar);
 
         //barre de statut
-        Label statut = new Label("Démonstration LOG121 © 2010");
+        Label statut = new Label("Démonstration LOG121 © 2026");
         statut.setStyle("-fx-padding: 5; -fx-font-size: 12;");
         HBox barreStatut = new HBox(statut);
         barreStatut.setStyle("-fx-alignment: center; -fx-background-color: #f0f0f0;");
@@ -98,7 +101,20 @@ public class ApplicationPrincipale extends Application {
             GestionnaireCommande.getInstance().annulerDerniereCommande();
         });
 
+        redo.setOnAction(e -> GestionnaireCommande.getInstance().refaireDerniereCommande());
+
         quitter.setOnAction(e -> stage.close());
+
+        scene.setOnKeyPressed(event -> {
+            if (new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN).match(event)) {
+                GestionnaireCommande.getInstance().annulerDerniereCommande();
+                event.consume();
+            }
+            else if (new KeyCodeCombination(KeyCode.Y, KeyCombination.CONTROL_DOWN).match(event)) {
+                GestionnaireCommande.getInstance().refaireDerniereCommande();
+                event.consume();
+            }
+        });
     }
 
     /**
