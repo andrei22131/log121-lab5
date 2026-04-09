@@ -78,7 +78,11 @@ public class ApplicationPrincipale extends Application {
         stage.setScene(scene);
         stage.show();
 
-        chargerImage.setOnAction(e -> ouvrirImage());
+        chargerImage.setOnAction(e -> ouvrirImage(stage));
+
+        sauvegarder.setOnAction(e -> sauvegarderPerspectives(stage));
+
+        charger.setOnAction(e -> chargerPerspectives(stage));
 
         undo.setOnAction( e -> {
             GestionnaireCommande.getInstance().annulerDerniereCommande();
@@ -91,12 +95,12 @@ public class ApplicationPrincipale extends Application {
      * Ouvre une boîte de dialogue permettant de sélectionner une image,
      * puis la charge dans le modèle.
      */
-    private void ouvrirImage() {
+    private void ouvrirImage(Stage stage) {
         FileChooser chooser = new FileChooser();
         chooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.bmp")
         );
-        File fichier = chooser.showOpenDialog(null);
+        File fichier = chooser.showOpenDialog(stage);
         if (fichier != null) {
             imageModele.chargerImage(fichier.getPath());
             System.out.println("Image chargée : " + fichier.getName());
@@ -109,6 +113,47 @@ public class ApplicationPrincipale extends Application {
      */
     private Pane createPane() {
         return null;
+    }
+
+    //sauvegarde l'état complet (image + perspectives) dans un fichier .ser.
+    private void sauvegarderPerspectives(Stage stage) {
+        if (!imageModele.estChargee()) return;
+
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Sauvegarder les perspectives");
+        chooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Fichier sauvegarde", "*.ser")
+        );
+        File fichier = chooser.showSaveDialog(stage);
+        if (fichier != null) {
+            try {
+                DonneesSauvegarde donnees = new DonneesSauvegarde(
+                        imageModele.getCheminImage(), perspective1, perspective2);
+                GestionnaireSauvegarde.sauvegarder(donnees, fichier);
+            } catch (Exception ex) {
+                new Alert(Alert.AlertType.ERROR, "Erreur de sauvegarde: " + ex.getMessage()).showAndWait();
+            }
+        }
+    }
+
+    //charge l'état complet (image + perspectives) depuis un fichier .ser.
+    private void chargerPerspectives(Stage stage) {
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Charger les perspectives");
+        chooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Fichier sauvegarde", "*.ser")
+        );
+        File fichier = chooser.showOpenDialog(stage);
+        if (fichier != null) {
+            try {
+                DonneesSauvegarde donnees = GestionnaireSauvegarde.charger(fichier);
+                imageModele.chargerImage(donnees.getCheminImage());
+                perspective1.restaurer(donnees.getPerspective1());
+                perspective2.restaurer(donnees.getPerspective2());
+            } catch (Exception ex) {
+                new Alert(Alert.AlertType.ERROR, "Erreur de chargement: " + ex.getMessage()).showAndWait();
+            }
+        }
     }
 
 
