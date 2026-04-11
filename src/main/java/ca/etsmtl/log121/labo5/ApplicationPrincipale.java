@@ -1,8 +1,13 @@
 package ca.etsmtl.log121.labo5;
 
+import ca.etsmtl.log121.labo5.controleur.CommandePerspective;
 import ca.etsmtl.log121.labo5.controleur.GestionnaireCommande;
 import ca.etsmtl.log121.labo5.modele.ImageModele;
 import ca.etsmtl.log121.labo5.modele.Perspective;
+import ca.etsmtl.log121.labo5.modele.StrategieCopieTout;
+import ca.etsmtl.log121.labo5.modele.StrategieCopieTranslation;
+import ca.etsmtl.log121.labo5.modele.StrategieCopieZoom;
+import ca.etsmtl.log121.labo5.controleur.PressePapierMediateur;
 import ca.etsmtl.log121.labo5.vue.VuePerspective;
 import ca.etsmtl.log121.labo5.vue.VueVignette;
 import javafx.application.Application;
@@ -22,6 +27,7 @@ public class ApplicationPrincipale extends Application {
     private final ImageModele imageModele = new ImageModele();
     private final Perspective perspective1 = new Perspective();
     private final Perspective perspective2 = new Perspective();
+    private Perspective perspectiveActive = null;
 
     private VueVignette vueVignette;
     private VuePerspective vue1;
@@ -39,6 +45,14 @@ public class ApplicationPrincipale extends Application {
         vueVignette = new VueVignette(imageModele);
         vue1 = new VuePerspective(imageModele, perspective1);
         vue2 = new VuePerspective(imageModele, perspective2);
+
+        vue1.addEventFilter(javafx.scene.input.MouseEvent.MOUSE_PRESSED, e -> {
+            perspectiveActive = perspective1;
+        });
+
+        vue2.addEventFilter(javafx.scene.input.MouseEvent.MOUSE_PRESSED, e -> {
+            perspectiveActive = perspective2;
+        });
 
         //panneau central avec 2 perspectives côte à côte
         HBox panneauPerspectives = new HBox();
@@ -104,6 +118,40 @@ public class ApplicationPrincipale extends Application {
         redo.setOnAction(e -> GestionnaireCommande.getInstance().refaireDerniereCommande());
 
         quitter.setOnAction(e -> stage.close());
+
+        copierEchelle.setOnAction(e -> {
+            if (perspectiveActive != null) {
+                PressePapierMediateur.getInstance().setStrategie(new StrategieCopieZoom());
+                PressePapierMediateur.getInstance().copier(perspectiveActive);
+            }
+        });
+
+        copierTranslation.setOnAction(e -> {
+            if (perspectiveActive != null) {
+                PressePapierMediateur.getInstance().setStrategie(new StrategieCopieTranslation());
+                PressePapierMediateur.getInstance().copier(perspectiveActive);
+            }
+        });
+
+        copierTout.setOnAction(e -> {
+            if (perspectiveActive != null) {
+                PressePapierMediateur.getInstance().setStrategie(new StrategieCopieTout());
+                PressePapierMediateur.getInstance().copier(perspectiveActive);
+            }
+        });
+
+        coller.setOnAction(e -> {
+            if (perspectiveActive != null && !PressePapierMediateur.getInstance().estVide()) {
+                Perspective avant = new Perspective(perspectiveActive.getTranslateX(), perspectiveActive.getTranslateY(), perspectiveActive.getZoom());
+
+                PressePapierMediateur.getInstance().coller(perspectiveActive);
+
+                Perspective apres = new Perspective(perspectiveActive.getTranslateX(), perspectiveActive.getTranslateY(), perspectiveActive.getZoom());
+
+                CommandePerspective cmd = new CommandePerspective(perspectiveActive, avant, apres);
+                GestionnaireCommande.getInstance().ajouterCommande(cmd);
+            }
+        });
 
         scene.setOnKeyPressed(event -> {
             if (new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN).match(event)) {
