@@ -5,6 +5,55 @@ skinparam packageStyle rectangle
 
 title Diagramme de classes Laboratoire 5
 
+
+
+'MODÈLE'
+package "Modèle" <<Rectangle>> {
+    class ImageModele {
+        - cheminImage : String
+        - image : Image
+        + chargerImage(chemin : String) : void
+        + getImage() : Image
+        + getCheminImage() : String
+        + estChargee() : boolean
+    }
+
+    class Perspective {
+        - translateX : double = 0
+        - translateY : double = 0
+        - zoom : double = 1
+        + Perspective()
+        + Perspective(translateX : double, translateY : double, zoom : double)
+        + getTranslateX() : double
+        + getTranslateY() : double
+        + getZoom() : double
+        + setTranslation(x : double, y : double) : void
+        + setZoom(zoom : double) : void
+        + copier() : Perspective
+        + restaurer(autre : Perspective) : void
+        + sauvegarderEtat() : PerspectiveMemento
+        + restaurerEtat(memento : PerspectiveMemento) : void
+    }
+
+    'PATRON STRATEGY'
+    package "Patron Strategy" <<Rectangle>> {
+    interface CopieStrategie {
+        + appliquer(source : PerspectiveMemento, destination : Perspective) : void
+    }
+
+    class StrategieCopieZoom implements CopieStrategie {
+        + appliquer(source : PerspectiveMemento, destination : Perspective) : void <<override>>
+    }
+
+    class StrategieCopieTranslation implements CopieStrategie {
+        + appliquer(source : PerspectiveMemento, destination : Perspective) : void <<override>>
+    }
+
+    class StrategieCopieTout implements CopieStrategie {
+        + appliquer(source : PerspectiveMemento, destination : Perspective) : void <<override>>
+    }
+}
+
 'PATRON OBSERVER'
 package "Patron Observer" <<Rectangle>> {
     interface Observateur {
@@ -21,41 +70,9 @@ package "Patron Observer" <<Rectangle>> {
     SujetObservable o--> "*" Observateur : notifie
 }
 
-'MODÈLE'
-package "Modèle" <<Rectangle>> {
-    class ImageModele extends SujetObservable {
-        - serialVersionUID : long = 1L {static, final}
-        - cheminImage : String
-        - image : Image
-        + chargerImage(chemin : String) : void
-        + getImage() : Image
-        + getCheminImage() : String
-        + estChargee() : boolean
-    }
-
-    class Perspective extends SujetObservable {
-        - serialVersionUID : long = 1L {static, final}
-        - translateX : double = 0
-        - translateY : double = 0
-        - zoom : double = 1
-        + Perspective()
-        + Perspective(translateX : double, translateY : double, zoom : double)
-        + getTranslateX() : double
-        + getTranslateY() : double
-        + getZoom() : double
-        + setTranslation(x : double, y : double) : void
-        + setZoom(zoom : double) : void
-        + copier() : Perspective
-        + restaurer(autre : Perspective) : void
-        + sauvegarderEtat() : PerspectiveMemento
-        + restaurerEtat(memento : PerspectiveMemento) : void
-    }
-}
-
 'MEMENTO'
 package "Patron Memento" <<Rectangle>> {
     class PerspectiveMemento {
-        - serialVersionUID : long = 1L {static, final}
         - zoom : double {final}
         - translateX : double {final}
         - translateY : double {final}
@@ -65,7 +82,87 @@ package "Patron Memento" <<Rectangle>> {
         + getTranslationY() : double
     }
 }
+}
 
+
+
+
+
+'VUES'
+package "Vues" <<Rectangle>> {
+    class VueVignette {
+        - canvas : Canvas {final}
+        - imageModele : ImageModele {final}
+        + miseAJour() : void <<override>>
+        - dessiner() : void
+    }
+
+    class VuePerspective {
+        - canvas : Canvas {final}
+        - imageModele : ImageModele {final}
+        - perspective : Perspective {final}
+        - debutDragX : double
+        - debutDragY : double
+        - enDrag : boolean = false
+        + VuePerspective(imageModel : ImageModel, perspective : Perspective)
+        - configurerSouris() : void
+        + miseAJour() : void <<override>>
+        - dessiner() : void
+        + getPerspective() : Perspective
+    }
+}
+
+'SÉRIALISATION'
+package "Sérialisation" <<Rectangle>> {
+    class DonneesSauvegarde {
+        - cheminImage : String {final}
+        - perspective1 : Perspective {final}
+        - perspective2 : Perspective {final}
+        + DonneesSauvegarde(cheminImage : String, perspective1 : Perspective, perspective2 : Perspective)
+        + getCheminImage() : String
+        + getPerspective1() : Perspective
+        + getPerspective2() : Perspective
+    }
+
+    class GestionnaireSauvegarde {
+        + {static} sauvegarder(donnees : DonneesSauvegarde, fichier : File) : void
+        + {static} charger(fichier : File) : DonneesSauvegarde
+    }
+}
+
+'CONTROLEUR'
+package "Controleur" <<Rectangle>> {
+
+
+    class ControleurPerspective {
+        - perspective : Perspective {final}
+        - imageView : ImageView {final}
+        - debutDragX : double 
+        - debutDragY : double
+        - debutTransX : double
+        - debutTransY : double
+        - enDrag : boolean = false
+        - ancienZoom : double
+        - zoomModeifie : boolean = false
+        + ControleurPerspective(perspective : Perspective, imageView : ImageView)
+        + deplacer(dx : double, dy : double) : void
+        + zoomer(facteur : double) : void
+    }
+
+    'PATRON MEDIATOR'
+    package "Patron Mediator" <<Rectangle>> {
+    class PressePapierMediateur {
+        - {static} instance : PressePapierMediateur
+        - donneesCopiees : PerspectiveMemento
+        - strategieCourante : CopieStrategie
+        - PressePapierMediateur()
+        + {static} getInstance() : PressePapierMediateur
+        + setStrategie(strategie : CopieStrategie) : void
+        + copier(source : Perspective) : void
+        + coller(destination : Perspective) : void
+        + estVide() : boolean
+    }
+}
 
 'PATRON COMMAND'
 package "Patron Command" <<Rectangle>> {
@@ -98,86 +195,8 @@ package "Patron Singleton" <<Rectangle>> {
         + refaireDernierCommande() : void
     }
 }
-
-'PATRON STRATEGY'
-package "Patron Strategy" <<Rectangle>> {
-    interface CopieStrategie {
-        + appliquer(source : PerspectiveMemento, destination : Perspective) : void
-    }
-
-    class StrategieCopieZoom implements CopieStrategie {
-        + appliquer(source : PerspectiveMemento, destination : Perspective) : void <<override>>
-    }
-
-    class StrategieCopieTranslation implements CopieStrategie {
-        + appliquer(source : PerspectiveMemento, destination : Perspective) : void <<override>>
-    }
-
-    class StrategieCopieTout implements CopieStrategie {
-        + appliquer(source : PerspectiveMemento, destination : Perspective) : void <<override>>
-    }
 }
 
-'PATRON MEDIATOR'
-package "Patron Mediator" <<Rectangle>> {
-    class PressePapierMediateur {
-        - {static} instance : PressePapierMediateur
-        - donneesCopiees : PerspectiveMemento
-        - strategieCourante : CopieStrategie
-        - PressePapierMediateur()
-        + {static} getInstance() : PressePapierMediateur
-        + setStrategie(strategie : CopieStrategie) : void
-        + copier(source : Perspective) : void
-        + coller(destination : Perspective) : void
-        + estVide() : boolean
-    }
-}
-
-'VUES'
-package "Vues" <<Rectangle>> {
-    class VueVignette implements Observateur {
-        - canvas : Canvas {final}
-        - imageModele : ImageModele {final}
-        + miseAJour() : void <<override>>
-        - dessiner() : void
-    }
-
-    class VuePerspective implements Observateur {
-        - canvas : Canvas {final}
-        - imageModele : ImageModele {final}
-        - perspective : Perspective {final}
-        - debutDragX : double
-        - debutDragY : double
-        - enDrag : boolean = false
-        + VuePerspective(imageModel : ImageModel, perspective : Perspective)
-        - configurerSouris() : void
-        + miseAJour() : void <<override>>
-        - dessiner() : void
-        + getPerspective() : Perspective
-    }
-}
-
-'SÉRIALISATION'
-package "Sérialisation" <<Rectangle>> {
-    class DonneesSauvegarde {
-        - serialVersionUID : long = 1L {static, final}
-        - cheminImage : String {final}
-        - perspective1 : Perspective {final}
-        - perspective2 : Perspective {final}
-        + DonneesSauvegarde(cheminImage : String, perspective1 : Perspective, perspective2 : Perspective)
-        + getCheminImage() : String
-        + getPerspective1() : Perspective
-        + getPerspective2() : Perspective
-    }
-
-    class GestionnaireSauvegarde {
-        + {static} sauvegarder(donnees : DonneesSauvegarde, fichier : File) : void
-        + {static} charger(fichier : File) : DonneesSauvegarde
-    }
-}
-
-'CONTROLEUR'
-package "Controleur" <<Rectangle>> {
     class ApplicationPrincipale {
         - imageModele : ImageModele {final}
         - perspective1 : Perspective {final}
@@ -193,22 +212,6 @@ package "Controleur" <<Rectangle>> {
         - chargerPerspective(stage : Stage) : void
         + main(args : String[]) : void {static}
     }
-
-    class ControleurPerspective {
-        - perspective : Perspective {final}
-        - imageView : ImageView {final}
-        - debutDragX : double 
-        - debutDragY : double
-        - debutTransX : double
-        - debutTransY : double
-        - enDrag : boolean = false
-        - ancienZoom : double
-        - zoomModeifie : boolean = false
-        + ControleurPerspective(perspective : Perspective, imageView : ImageView)
-        + deplacer(dx : double, dy : double) : void
-        + zoomer(facteur : double) : void
-    }
-}
 
 'RELATIONS'
 CommandePerspective --> Perspective : modifie
@@ -234,6 +237,13 @@ ApplicationPrincipale ..> GestionnaireCommande : utilise
 ApplicationPrincipale ..> PressePapierMediateur : utilise
 ApplicationPrincipale ..> GestionnaireSauvegarde : utilise
 
+ImageModele --|> SujetObservable
+Perspective --|> SujetObservable
+
+
 GestionnaireSauvegarde ..> DonneesSauvegarde
+
+VuePerspective ..|> Observateur
+VueVignette ..|> Observateur
 
 @enduml
