@@ -9,8 +9,7 @@ title Diagramme de classes Laboratoire 5
 
 'MODÈLE'
 package "Modèle" <<Rectangle>> {
-    class ImageModele extends SujetObservable {
-        - serialVersionUID : long = 1L {static} {final}
+    class ImageModele {
         - cheminImage : String
         - image : Image
         + chargerImage(chemin : String) : void
@@ -19,8 +18,7 @@ package "Modèle" <<Rectangle>> {
         + estChargee() : boolean
     }
 
-    class Perspective extends SujetObservable {
-        - serialVersionUID : long = 1L {static} {final}
+    class Perspective {
         - translateX : double = 0
         - translateY : double = 0
         - zoom : double = 1
@@ -75,7 +73,6 @@ package "Patron Observer" <<Rectangle>> {
 'MEMENTO'
 package "Patron Memento" <<Rectangle>> {
     class PerspectiveMemento {
-        - serialVersionUID : long = 1L {static} {final}
         - zoom : double {final}
         - translateX : double {final}
         - translateY : double {final}
@@ -93,14 +90,14 @@ package "Patron Memento" <<Rectangle>> {
 
 'VUES'
 package "Vues" <<Rectangle>> {
-    class VueVignette implements Observateur {
+    class VueVignette {
         - canvas : Canvas {final}
         - imageModele : ImageModele {final}
         + miseAJour() : void <<override>>
         - dessiner() : void
     }
 
-    class VuePerspective implements Observateur {
+    class VuePerspective {
         - canvas : Canvas {final}
         - imageModele : ImageModele {final}
         - perspective : Perspective {final}
@@ -118,7 +115,6 @@ package "Vues" <<Rectangle>> {
 'SÉRIALISATION'
 package "Sérialisation" <<Rectangle>> {
     class DonneesSauvegarde {
-        - serialVersionUID : long = 1L {static} {final}
         - cheminImage : String {final}
         - perspective1 : Perspective {final}
         - perspective2 : Perspective {final}
@@ -241,6 +237,13 @@ ApplicationPrincipale ..> GestionnaireCommande : utilise
 ApplicationPrincipale ..> PressePapierMediateur : utilise
 ApplicationPrincipale ..> GestionnaireSauvegarde : utilise
 
+ImageModele --|> SujetObservable
+Perspective --|> SujetObservable
+
+
 GestionnaireSauvegarde ..> DonneesSauvegarde
+
+VuePerspective ..|> Observateur
+VueVignette ..|> Observateur
 
 @enduml
