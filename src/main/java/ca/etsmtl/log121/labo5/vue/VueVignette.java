@@ -13,6 +13,10 @@ public class VueVignette extends Pane implements Observateur {
     private final Canvas canvas;
     private final ImageModele imageModele;
 
+    /**
+     * Initialise la vue vignette avec le modèle d'image.
+     * @param imageModele modèle contenant l'image
+     */
     public VueVignette(ImageModele imageModele) {
         this.imageModele = imageModele;
 
@@ -30,11 +34,17 @@ public class VueVignette extends Pane implements Observateur {
         setStyle("-fx-border-color: black; -fx-border-width: 1;");
     }
 
+    /**
+     * Met à jour la vue lorsque le modèle change.
+     */
     @Override
     public void miseAJour() {
         dessiner();
     }
 
+    /**
+     * Dessine l'image en l'adaptant à la taille de la vignette.
+     */
     private void dessiner() {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         double w = canvas.getWidth();
@@ -45,7 +55,7 @@ public class VueVignette extends Pane implements Observateur {
         Image img = imageModele.getImage();
         if (img == null) return;
 
-        //zalculer le ratio pour que l'image tienne dans la vignette
+        //calculer le ratio pour que l'image tienne dans la vignette
         double ratioX = w / img.getWidth();
         double ratioY = h / img.getHeight();
         double ratio = Math.min(ratioX, ratioY);

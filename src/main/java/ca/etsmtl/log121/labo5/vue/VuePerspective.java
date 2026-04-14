@@ -23,6 +23,11 @@ public class VuePerspective extends Pane implements Observateur {
     private double debutTransX, debutTransY;
     private boolean enDrag = false;
 
+    /**
+     * Initialise la vue avec le modèle d'image et la perspective.
+     * @param imageModele modèle contenant l'image
+     * @param perspective perspective associée
+     */
     public VuePerspective(ImageModele imageModele, Perspective perspective) {
         this.imageModele = imageModele;
         this.perspective = perspective;
@@ -46,6 +51,9 @@ public class VuePerspective extends Pane implements Observateur {
         configurerSouris();
     }
 
+    /**
+     * Configure les interactions souris (drag pour translation, scroll pour zoom).
+     */
     private void configurerSouris() {
         //translation par glisser
         setOnMousePressed(e -> {
@@ -98,11 +106,17 @@ public class VuePerspective extends Pane implements Observateur {
         });
     }
 
+    /**
+     * Met à jour la vue lorsque le modèle change.
+     */
     @Override
     public void miseAJour() {
         dessiner();
     }
 
+    /**
+     * Dessine l'image selon la translation et le zoom de la perspective.
+     */
     private void dessiner() {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         double w = canvas.getWidth();
@@ -123,6 +137,10 @@ public class VuePerspective extends Pane implements Observateur {
         gc.drawImage(img, tx, ty, imgW, imgH);
     }
 
+    /**
+     * Retourne la perspective associée à la vue.
+     * @return perspective
+     */
     public Perspective getPerspective() {
         return perspective;
     }
