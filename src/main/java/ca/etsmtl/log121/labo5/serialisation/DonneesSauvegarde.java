@@ -6,8 +6,6 @@ import java.io.Serializable;
 
 public class DonneesSauvegarde implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-
     private final String cheminImage;
     private final Perspective perspective1;
     private final Perspective perspective2;
