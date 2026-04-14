@@ -34,10 +34,8 @@ public class ApplicationPrincipale extends Application {
     private VuePerspective vue2;
 
     /**
-     * Méthode appelée au démarrage de l'application JavaFX.
-     * Initialise l'interface graphique, les menus et les vues.
-     *
-     * @param stage la fenêtre principale
+     * Initialise l’interface graphique et les composants MVC.
+     * Configure les vues, menus et interactions utilisateur.
      */
     @Override
     public void start(Stage stage) {
@@ -54,7 +52,6 @@ public class ApplicationPrincipale extends Application {
             perspectiveActive = perspective2;
         });
 
-        //panneau central avec 2 perspectives côte à côte
         HBox panneauPerspectives = new HBox();
         HBox.setHgrow(vue1, Priority.ALWAYS);
         HBox.setHgrow(vue2, Priority.ALWAYS);
@@ -93,7 +90,6 @@ public class ApplicationPrincipale extends Application {
         menuBar.getMenus().addAll(menuFichier, menuEdition, menuPressePapier);
         root.setTop(menuBar);
 
-        //barre de statut
         Label statut = new Label("Démonstration LOG121 © 2026");
         statut.setStyle("-fx-padding: 5; -fx-font-size: 12;");
         HBox barreStatut = new HBox(statut);
@@ -106,9 +102,7 @@ public class ApplicationPrincipale extends Application {
         stage.show();
 
         chargerImage.setOnAction(e -> ouvrirImage(stage));
-
         sauvegarder.setOnAction(e -> sauvegarderPerspectives(stage));
-
         charger.setOnAction(e -> chargerPerspectives(stage));
 
         undo.setOnAction( e -> {
@@ -157,8 +151,7 @@ public class ApplicationPrincipale extends Application {
             if (new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN).match(event)) {
                 GestionnaireCommande.getInstance().annulerDerniereCommande();
                 event.consume();
-            }
-            else if (new KeyCodeCombination(KeyCode.Y, KeyCombination.CONTROL_DOWN).match(event)) {
+            } else if (new KeyCodeCombination(KeyCode.Y, KeyCombination.CONTROL_DOWN).match(event)) {
                 GestionnaireCommande.getInstance().refaireDerniereCommande();
                 event.consume();
             }
@@ -166,8 +159,8 @@ public class ApplicationPrincipale extends Application {
     }
 
     /**
-     * Ouvre une boîte de dialogue permettant de sélectionner une image,
-     * puis la charge dans le modèle.
+     * Ouvre une image depuis un fichier sélectionné par l’utilisateur.
+     * @param stage fenêtre principale
      */
     private void ouvrirImage(Stage stage) {
         FileChooser chooser = new FileChooser();
@@ -177,19 +170,13 @@ public class ApplicationPrincipale extends Application {
         File fichier = chooser.showOpenDialog(stage);
         if (fichier != null) {
             imageModele.chargerImage(fichier.getPath());
-            System.out.println("Image chargée : " + fichier.getName());
         }
     }
 
     /**
-     * Méthode utilitaire.
-     * @return un conteneur vide
+     * Sauvegarde l’état complet (image + perspectives).
+     * @param stage fenêtre principale
      */
-    private Pane createPane() {
-        return null;
-    }
-
-    //sauvegarde l'état complet (image + perspectives) dans un fichier .ser.
     private void sauvegarderPerspectives(Stage stage) {
         if (!imageModele.estChargee()) return;
 
@@ -210,7 +197,10 @@ public class ApplicationPrincipale extends Application {
         }
     }
 
-    //charge l'état complet (image + perspectives) depuis un fichier .ser.
+    /**
+     * Charge l’état complet (image + perspectives).
+     * @param stage fenêtre principale
+     */
     private void chargerPerspectives(Stage stage) {
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Charger les perspectives");
@@ -230,10 +220,9 @@ public class ApplicationPrincipale extends Application {
         }
     }
 
-
     /**
-     * Point d'entrée de l'application.
-     * @param args arguments de la ligne de commande
+     * Point d’entrée de l’application.
+     * @param args arguments CLI
      */
     public static void main(String[] args) {
         launch(args);
