@@ -8,7 +8,7 @@ public class ControleurPerspective {
     private final Perspective perspective;
     private final ImageView imageView;
 
-    // Translation qui est létat au début du drag
+    // Translation qui est l'état au début du drag
     private double debutDragX;
     private double debutDragY;
     private double debutTransX;
@@ -19,6 +19,11 @@ public class ControleurPerspective {
     private double ancienZoom;
     private boolean zoomModifie = false;
 
+    /**
+     * Initialise le contrôleur avec une perspective et sa vue associée.
+     * @param perspective modèle de la perspective
+     * @param imageView vue associée
+     */
     public ControleurPerspective(Perspective perspective, ImageView imageView) {
         this.perspective = perspective;
         this.imageView = imageView;
@@ -26,6 +31,9 @@ public class ControleurPerspective {
         initialiser();
     }
 
+    /**
+     * Configure les gestionnaires d'événements pour le drag et le zoom.
+     */
     private void initialiser() {
 
         // Début du drag qui mémorise la position de départ

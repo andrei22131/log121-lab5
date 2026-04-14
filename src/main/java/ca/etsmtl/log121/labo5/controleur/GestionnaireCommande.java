@@ -2,7 +2,6 @@ package ca.etsmtl.log121.labo5.controleur;
 
 import java.util.Stack;
 
-//Instance unique qui gère la pile de commandes exécutées et permet le undo
 public class GestionnaireCommande {
 
     private static GestionnaireCommande instance;
@@ -14,6 +13,10 @@ public class GestionnaireCommande {
         redo = new Stack<>();
     }
 
+    /**
+     * Retourne l'unique instance du gestionnaire (Singleton).
+     * @return instance de GestionnaireCommande
+     */
     public static GestionnaireCommande getInstance() {
         if (instance == null) {
             instance = new GestionnaireCommande();
@@ -21,20 +24,28 @@ public class GestionnaireCommande {
         return instance;
     }
 
-    //Exécute une commande et l'empile pour le undo
+    /**
+     * Exécute une commande et l'ajoute à l'historique.
+     * @param commande commande à exécuter
+     */
     public void executerCommande(Commande commande) {
         commande.executer();
         historique.push(commande);
         redo.clear();
     }
 
-    //Ajoute une commande à l'historique sans l'exécuter et aussi utile quand l'action a déjà été appliquée
+    /**
+     * Ajoute une commande à l'historique sans l'exécuter.
+     * @param commande commande à ajouter
+     */
     public void ajouterCommande(Commande commande) {
         historique.push(commande);
         redo.clear();
     }
 
-    //Annule la dernière commande exécutée
+    /**
+     * Annule la dernière commande exécutée.
+     */
     public void annulerDerniereCommande() {
         if (!historique.isEmpty()) {
             Commande derniereCommande = historique.pop();
@@ -43,7 +54,9 @@ public class GestionnaireCommande {
         }
     }
 
-    // Refait la dernière commande annulée (Redo)
+    /**
+     * Réexécute la dernière commande annulée.
+     */
     public void refaireDerniereCommande() {
         if (!redo.isEmpty()) {
             Commande commandeARefaire = redo.pop();

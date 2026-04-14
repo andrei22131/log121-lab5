@@ -15,6 +15,10 @@ public class PressePapierMediateur {
         strategieCourante = new StrategieCopieTout();
     }
 
+    /**
+     * Retourne l'unique instance du presse-papier (Singleton).
+     * @return instance du PressePapierMediateur
+     */
     public static PressePapierMediateur getInstance() {
         if (instance == null) {
             instance = new PressePapierMediateur();
@@ -22,22 +26,37 @@ public class PressePapierMediateur {
         return instance;
     }
 
+    /**
+     * Définit la stratégie de copie à utiliser.
+     * @param strategie nouvelle stratégie de copie
+     */
     public void setStrategie(CopieStrategie strategie) {
         this.strategieCourante = strategie;
     }
 
+    /**
+     * Copie l'état de la perspective source.
+     * @param source perspective à copier
+     */
     public void copier(Perspective source) {
         this.donneesCopiees = source.sauvegarderEtat();
     }
 
+    /**
+     * Colle les données copiées dans la perspective destination
+     * en utilisant la stratégie courante.
+     * @param destination perspective cible
+     */
     public void coller(Perspective destination) {
         if (donneesCopiees != null) {
-            // L'avantage du Mediator + Strategy combinés :
-            // Le Mediator ordonne à la stratégie d'appliquer les données !
             strategieCourante.appliquer(donneesCopiees, destination);
         }
     }
 
+    /**
+     * Vérifie si le presse-papier est vide.
+     * @return true si aucune donnée n'est copiée
+     */
     public boolean estVide() {
         return donneesCopiees == null;
     }
