@@ -1,0 +1,67 @@
+@startuml
+
+title Diagramme de séquence : Effectuer une commande de zoom
+
+actor Utilisateur
+
+participant "vue1:VuePerspective" as vue
+participant "cmd:CommandePerspective" as cmd
+participant ":GestionnaireCommande" as gestionnaire
+participant "perspective1:Perspective" as perspective
+participant "vue1:VuePerspective" as vueObs
+participant "vue2:VuePerspective" as vueObs2
+
+note over Utilisateur, vueObs2
+  L'utilisateur effectue un scroll ( de molette) sur la vue perspective 1
+  pour zoomer sur l'image. La vue crée une CommandePerspective
+  et la délègue au GestionnaireCommande (Singleton).
+end note
+
+Utilisateur -> vue : ScrollEvent (molette)
+
+activate vue
+
+vue -> vue : calculer nouveauZoom\n= ancienZoom * facteur
+
+create "avant:Perspective" as avant
+vue -> avant : new Perspective(translateX, translateY, ancienZoom)
+
+create "apres:Perspective" as apres
+vue -> apres : new Perspective(translateX, translateY, nouveauZoom)
+
+create cmd
+vue -> cmd : new CommandePerspective(perspective1, avant, apres)
+
+vue -> gestionnaire : getInstance()
+activate gestionnaire
+gestionnaire --> vue : :GestionnaireCommande
+deactivate gestionnaire
+
+vue -> gestionnaire : executerCommande(cmd)
+activate gestionnaire
+
+gestionnaire -> cmd : executer()
+activate cmd
+
+cmd -> perspective : restaurer(apres)
+activate perspective
+
+perspective -> perspective : zoom = apres.zoom\ntranslateX = apres.translateX\ntranslateY = apres.translateY
+
+perspective -> perspective : notifierObservateurs()
+
+perspective -> vueObs : miseAJour()
+activate vueObs
+vueObs -> vueObs : dessiner()
+deactivate vueObs
+
+deactivate perspective
+deactivate cmd
+
+gestionnaire -> gestionnaire : historique.push(cmd)
+gestionnaire -> gestionnaire : redo.clear()
+
+deactivate gestionnaire
+deactivate vue
+
+@enduml

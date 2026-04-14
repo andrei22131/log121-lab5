@@ -1,0 +1,56 @@
+@startuml
+
+title Diagramme de séquence : Défaire une commande (Undo)
+
+actor Utilisateur
+
+participant ":ApplicationPrincipale" as app
+participant ":GestionnaireCommande" as gestionnaire
+participant "cmd:CommandePerspective" as cmd
+participant "perspective1:Perspective" as perspective
+participant "vue1:VuePerspective" as vueObs
+
+note over Utilisateur, vueObs
+  L'utilisateur clique sur le menu Édition et apres Annuler (ou Ctrl+Z).
+  L'ApplicationPrincipale demande au GestionnaireCommande (Singleton)
+  d'annuler la dernière commande. Celle-ci restaure l'état précédent
+  de la perspective, qui notifie ses observateurs.
+end note
+
+Utilisateur -> app : clic menu "Annuler"\n(ou Ctrl+Z)
+activate app
+
+app -> gestionnaire : getInstance()
+activate gestionnaire
+gestionnaire --> app : :GestionnaireCommande
+deactivate gestionnaire
+
+app -> gestionnaire : annulerDerniereCommande()
+activate gestionnaire
+
+gestionnaire -> gestionnaire : cmd = historique.pop()
+
+gestionnaire -> cmd : annuler()
+activate cmd
+
+cmd -> perspective : restaurer(avant)
+activate perspective
+
+perspective -> perspective : zoom = avant.zoom\ntranslateX = avant.translateX\ntranslateY = avant.translateY
+
+perspective -> perspective : notifierObservateurs()
+
+perspective -> vueObs : miseAJour()
+activate vueObs
+vueObs -> vueObs : dessiner()
+deactivate vueObs
+
+deactivate perspective
+deactivate cmd
+
+gestionnaire -> gestionnaire : redo.push(cmd)
+
+deactivate gestionnaire
+deactivate app
+
+@enduml
