@@ -43,8 +43,23 @@ package "Modèle" <<Rectangle>> {
         + setZoom(zoom : double) : void
         + copier() : Perspective
         + restaurer(autre : Perspective) : void
+        + sauvegarderEtat() : PerspectiveMemento
+        + restaurerEtat(memento : PerspectiveMemento) : void
     }
 }
+
+'MEMENTO'
+package "Patron Memento" <<Rectangle>> {
+    class PerspectiveMemento {
+        - zoom : double
+        - translationX : double
+        - translationY : double
+        + getZoom() : double
+        + getTranslationX() : double
+        + getTranslationY() : double
+    }
+}
+
 
 'PATRON COMMAND'
 package "Patron Command" <<Rectangle>> {
@@ -53,20 +68,10 @@ package "Patron Command" <<Rectangle>> {
         + annuler() : void
     }
 
-    class CommandeTranslation implements Commande {
-        - perspective : Perspective
-        - nouveauX : double
-        - nouveauY : double
-        - ancienX : double
-        - ancienY : double
-        + executer() : void
-        + annuler() : void
-    }
-
-    class CommandeZoom implements Commande {
-        - perspective : Perspective
-        - nouveauZoom : double
-        - ancienZoom : double
+    class CommandePerspective implements Commande {
+        - cible : Perspective
+        - avant : Perspective
+        - apres : Perspective
         + executer() : void
         + annuler() : void
     }
@@ -76,12 +81,48 @@ package "Patron Command" <<Rectangle>> {
 package "Patron Singleton" <<Rectangle>> {
     class GestionnaireCommande {
         - {static} instance : GestionnaireCommande
-        - pileCommandes : Stack<Commande>
+        - historique : Stack<Commande>
+        - redo : Stack<Commande>
         - GestionnaireCommande()
         + {static} getInstance() : GestionnaireCommande
         + executerCommande(cmd : Commande) : void
-        + annuler() : void
-        + peutAnnuler() : boolean
+        + ajouterCommande(cmd : Commande) : void
+        + annulerDerniereCommande() : void
+        + refaireDerniereCommande() : void
+    }
+}
+
+'PATRON STRATEGY'
+package "Patron Strategy" <<Rectangle>> {
+    interface CopieStrategie {
+        + appliquer(source : PerspectiveMemento, destination : Perspective) : void
+    }
+
+    class StrategieCopieZoom implements CopieStrategie {
+        + appliquer(source : PerspectiveMemento, destination : Perspective) : void
+    }
+
+    class StrategieCopieTranslation implements CopieStrategie {
+        + appliquer(source : PerspectiveMemento, destination : Perspective) : void
+    }
+
+    class StrategieCopieTout implements CopieStrategie {
+        + appliquer(source : PerspectiveMemento, destination : Perspective) : void
+    }
+}
+
+'PATRON MEDIATOR'
+package "Patron Mediator" <<Rectangle>> {
+    class PressePapierMediateur {
+        - {static} instance : PressePapierMediateur
+        - donneesCopiees : PerspectiveMemento
+        - strategieCourante : CopieStrategie
+        - PressePapierMediateur()
+        + {static} getInstance() : PressePapierMediateur
+        + setStrategie(strategie : CopieStrategie) : void
+        + copier(source : Perspective) : void
+        + coller(destination : Perspective) : void
+        + estVide() : boolean
     }
 }
 
@@ -111,14 +152,16 @@ package "Sérialisation" <<Rectangle>> {
         - cheminImage : String
         - perspective1 : Perspective
         - perspective2 : Perspective
+        + getCheminImage() : String
+        + getPerspective1() : Perspective
+        + getPerspective2() : Perspective
     }
 
     class GestionnaireSauvegarde {
-        + {static} sauvegarder(donnees, fichier) : void
-        + {static} charger(fichier) : DonneesSauvegarde
+        + {static} sauvegarder(donnees : DonneesSauvegarde, fichier : File) : void
+        + {static} charger(fichier : File) : DonneesSauvegarde
     }
 }
-
 
 'CONTROLEUR'
 package "Controleur" <<Rectangle>> {
@@ -126,33 +169,44 @@ package "Controleur" <<Rectangle>> {
         - imageModele : ImageModele
         - perspective1 : Perspective
         - perspective2 : Perspective
+        - perspectiveActive : Perspective
         + start(stage : Stage) : void
-        - creerBarreMenus(stage) : MenuBar
-        - chargerImage(stage) : void
-        - sauvegarder(stage) : void
-        - chargerPerspective(stage) : void
+        - ouvrirImage(stage : Stage) : void
+        - sauvegarderPerspectives(stage : Stage) : void
+        - chargerPerspectives(stage : Stage) : void
+    }
+
+    class ControleurPerspective {
+        - perspective : Perspective
+        - imageView : ImageView
+        - initialiser() : void
     }
 }
 
 'RELATIONS'
-CommandeTranslation --> Perspective : modifie
-CommandeZoom --> Perspective : modifie
+CommandePerspective --> Perspective : modifie
 GestionnaireCommande --> "*" Commande : gère
+
+Perspective --> PerspectiveMemento : crée / restaure
 
 VueVignette --> ImageModele : observe
 VuePerspective --> ImageModele : observe
 VuePerspective --> Perspective : observe
 VuePerspective ..> GestionnaireCommande : utilise
-VuePerspective ..> CommandeTranslation : crée
-VuePerspective ..> CommandeZoom : crée
+VuePerspective ..> CommandePerspective : crée
+
+PressePapierMediateur --> CopieStrategie : utilise
+PressePapierMediateur --> PerspectiveMemento : stocke
+PressePapierMediateur ..> Perspective : copie / colle
 
 ApplicationPrincipale --> ImageModele
 ApplicationPrincipale --> Perspective
 ApplicationPrincipale --> VueVignette
 ApplicationPrincipale --> VuePerspective
 ApplicationPrincipale ..> GestionnaireCommande : utilise
+ApplicationPrincipale ..> PressePapierMediateur : utilise
+ApplicationPrincipale ..> GestionnaireSauvegarde : utilise
 
 GestionnaireSauvegarde ..> DonneesSauvegarde
-ApplicationPrincipale ..> GestionnaireSauvegarde : utilise
 
 @enduml
