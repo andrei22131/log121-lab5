@@ -3,8 +3,6 @@ package ca.etsmtl.log121.labo5.modele;
 import java.io.Serializable;
 
 public class PerspectiveMemento implements Serializable {
-    private static final long serialVersionUID = 1L;
-
     private final double zoom;
     private final double translationX;
     private final double translationY;
